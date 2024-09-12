@@ -3,6 +3,7 @@ package com.example.likesapp
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,15 @@ class MainActivity : AppCompatActivity() {
     private val mCanvas = Canvas(mBitmap)
     private val mPaint = Paint()
 
+    private val halfOfWidth = (mBitmap.width/2).toFloat()
+    private val halfOfHeight = (mBitmap.height/2).toFloat()
+
+    private val left = 150F
+    private val top = 250F
+    private val right = mBitmap.width - left
+    private val bottom = mBitmap.height.toFloat() - 50F
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -32,16 +42,37 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.imageView.setImageBitmap(mBitmap)
-        showFace()
+        showText()
+
+        binding.like.setOnClickListener {
+            showFace()
+            showMouth(true)
+            showEyes()
+        }
+
+        binding.dislike.setOnClickListener {
+            showFace()
+            showMouth(false)
+            showEyes()
+        }
     }
 
-    private val halfOfWidth = (mBitmap.width/2).toFloat()
-    private val halfOfHeight = (mBitmap.height/2).toFloat()
 
-    private val left = 150F
-    private val top = 250F
-    private val right = mBitmap.width - left
-    private val bottom = mBitmap.height.toFloat() - 50F
+    private val message = "Apakah kamu mencintai saya?"
+
+    private fun showText() {
+        val mPaintText =  Paint(Paint.FAKE_BOLD_TEXT_FLAG).apply {
+            textSize = 50F
+            color = ResourcesCompat.getColor(resources, R.color.black , null)
+        }
+
+        val mBounds = Rect()
+        mPaintText.getTextBounds(message, 0, message.length, mBounds)
+
+        val x: Float = halfOfWidth - mBounds.centerX()
+        val y = 50F
+        mCanvas.drawText(message, x, y, mPaintText)
+    }
 
     private fun showFace() {
         val face = RectF(left, top, right, bottom)
@@ -62,5 +93,29 @@ class MainActivity : AppCompatActivity() {
         mPaint.color = ResourcesCompat.getColor(resources, R.color.white, null)
         mCanvas.drawCircle(halfOfWidth - 120F, halfOfHeight - 20F, 15F, mPaint)
         mCanvas.drawCircle(halfOfWidth + 80F, halfOfHeight - 20F, 15F, mPaint)
+    }
+
+    private fun showMouth(isHappy: Boolean) {
+        when (isHappy) {
+            true -> {
+                mPaint.color = ResourcesCompat.getColor(resources, R.color.black, null)
+                val lip = RectF(halfOfWidth - 200F, halfOfHeight - 100F, halfOfWidth + 200F, halfOfHeight + 400F)
+                mCanvas.drawArc(lip, 25F, 130F, false, mPaint)
+
+                mPaint.color = ResourcesCompat.getColor(resources, R.color.white, null)
+                val mouth = RectF(halfOfWidth - 180F, halfOfHeight, halfOfWidth + 180F, halfOfHeight + 380F)
+                mCanvas.drawArc(mouth, 25F, 130F, false, mPaint)
+
+            }
+            false -> {
+                mPaint.color = ResourcesCompat.getColor(resources, R.color.black, null)
+                val lip = RectF(halfOfWidth - 200F, halfOfHeight + 250F, halfOfWidth + 200F, halfOfHeight + 350F)
+                mCanvas.drawArc(lip, 0F, -180F, false, mPaint)
+
+                mPaint.color = ResourcesCompat.getColor(resources, R.color.white, null)
+                val mouth = RectF(halfOfWidth - 180F, halfOfHeight + 260F, halfOfWidth + 180F, halfOfHeight + 330F)
+                mCanvas.drawArc(mouth, 0F, -180F, false, mPaint)
+            }
+        }
     }
 }
